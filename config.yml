@@ -1,0 +1,16 @@
+server:
+  port: 3000
+
+logger:
+  file:
+    name: YYYY-MM-DD-hh-mm-ss.log
+    path: logs
+  time: hh:mm:ss
+  linegap: 1
+  debug: true
+
+canvas:
+  width: 100
+  height: 100
+  scale: 5
+  cooldown: 5000
