@@ -8,11 +8,42 @@
         <script src="/libs/howler.min.js"></script>
         <link rel="stylesheet" href="style.css">
         <script src="index.js" defer></script>
+        <script src="https://kit.fontawesome.com/204fdeb87b.js" crossorigin="anonymous"></script>
         <title>Canvas</title>
     </head>
     <body>
+        <div class="connecting">Connecting...</div>
         <div class="container">
             <canvas class="canvas" width="100" height="100"></canvas>
         </div>
+        <div class="stats">
+            <div class="stat" id="online"></div>
+            <div class="stat" id="ping"></div>
+        </div>
+        <div class="toolbar">
+            <div class="toolbar-button" id="commands">
+                <i class="fa-solid fa-terminal"></i>
+            </div>
+            <input autocomplete="off" spellcheck="false" class="toolbar-input" type="text" id="input" placeholder="CHAT">
+            <div class="toolbar-button" id="submit">
+                <i class="fa-solid fa-share"></i>
+            </div>
+            <div class="toolbar-button" id="dark">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+            </div>
+            <div class="toolbar-button" id="audio">
+                <i class="fa-solid fa-headphones"></i>
+            </div>
+            <div class="toolbar-button" id="zoom">
+                <i class="fa-solid fa-expand"></i>
+            </div>
+            <div class="toolbar-button" id="offset">
+                <i class="fa-solid fa-arrows-up-down-left-right"></i>
+            </div>
+            <div class="toolbar-button" id="controls">
+                <i class="fa-solid fa-keyboard"></i>
+            </div>
+        </div>
+        <div class="chat"></div>
     </body>
 </html>

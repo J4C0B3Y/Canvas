@@ -29,6 +29,7 @@ class User {
     colour = "#000000"
     name
     online = 0
+    admin
 
     constructor(token) {
         this.token = token
@@ -129,5 +130,14 @@ io.on('connection', (socket) => {
             token: user.token,
             colour: user.colour
         })
+    })
+
+    socket.on("ping", (callback) => { callback() })
+
+    socket.on("message", (message) => {
+        if(!config.get().canvas.chat) return
+        if(!message.content) return
+
+        io.emit("message", {content: message.content, author: user.name})
     })
 })
