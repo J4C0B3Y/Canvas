@@ -1,5 +1,5 @@
 server:
-  port: 3000
+  port: 8880
 
 logger:
   file:
@@ -13,5 +13,5 @@ canvas:
   width: 100
   height: 100
   scale: 5
-  cooldown: 500
+  cooldown: 1000
   chat: true

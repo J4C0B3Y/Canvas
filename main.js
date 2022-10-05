@@ -86,7 +86,7 @@ io.on('connection', (socket) => {
         if(user.cooldown > Date.now()) return socket.emit("error", {cooldown: user.cooldown - Date.now(), code: 3}) // Cooldown
         if(!(data && data.colour && !isNaN(data.x)  && !isNaN(data.y))) return socket.emit("error", {code: 4}) // No Data
         if(Math.floor(data.x) !== data.x || Math.floor(data.y) !== data.y) return socket.emit("error", {code: 5}) // Position not whole
-        if(!/^#([0-9A-F]{3}){1,2}$/i.test(data.colour)) return socket.emit("error", {code: 6}) // Not a colour
+        if(!/^#([\dA-F]{3}){1,2}$/i.test(data.colour)) return socket.emit("error", {code: 6}) // Not a colour
         if(data.x < 0 || data.x >= canvas.width || data.y < 0 || data.y >= canvas.height) return socket.emit("error", {code: 7}) // Out of bounds
 
         let index
@@ -111,6 +111,7 @@ io.on('connection', (socket) => {
         if(!user) return
         if(!data) return
         if(!data.name) return
+        if(data.name.length > 16) return
 
         user.name = data.name
     })

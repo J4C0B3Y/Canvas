@@ -368,7 +368,16 @@ elements.canvas.addEventListener("mousemove", (event) => {
     mousePos = {x: event.offsetX, y: event.offsetY}
 })
 
+String.prototype.toHtmlEntities = function() {
+    return this.replace(/./gm, function(string) {
+        return (string.match(/[a-z\d\s]+/i)) ? string : "&#" + string.charCodeAt(0) + ";";
+    })
+}
+
 socket.on("message", (message) => {
+    message.author = message.author.toHtmlEntities()
+    message.content = message.content.toHtmlEntities()
+
     elements.chat.innerHTML += `<div class="message"><div class="user">${message.author}:</div><div class="content">${message.content}</div></div>`
 })
 
