@@ -141,4 +141,6 @@ io.on('connection', (socket) => {
 
         io.emit("message", {content: message.content, author: user.name})
     })
+
+    if(!config.get().canvas.chat) socket.emit("alert", {message: "Chat is currently disabled", error: true})
 })

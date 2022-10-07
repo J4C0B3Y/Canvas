@@ -2,13 +2,13 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport"
-              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
         <script src="/socket.io/socket.io.js"></script>
         <script src="/libs/howler.min.js"></script>
-        <link rel="stylesheet" href="style.css">
-        <script src="index.js" defer></script>
         <script src="https://kit.fontawesome.com/204fdeb87b.js" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="style.css">
+        <script src="utils.js"></script>
+        <script src="index.js" defer></script>
         <title>Canvas</title>
     </head>
     <body>
@@ -27,6 +27,12 @@
             <input autocomplete="off" spellcheck="false" class="toolbar-input" type="text" id="input" placeholder="CHAT">
             <div class="toolbar-button" id="submit">
                 <i class="fa-solid fa-share"></i>
+            </div>
+            <div class="toolbar-button" id="eyedropper">
+                <i class="fa-solid fa-eyedropper"></i>
+            </div>
+            <div class="toolbar-button" id="save">
+                <i class="fa-solid fa-download"></i>
             </div>
             <div class="toolbar-button" id="dark">
                 <i class="fa-solid fa-circle-half-stroke"></i>

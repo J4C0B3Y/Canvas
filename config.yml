@@ -14,4 +14,4 @@ canvas:
   height: 100
   scale: 5
   cooldown: 1000
-  chat: true
+  chat: false

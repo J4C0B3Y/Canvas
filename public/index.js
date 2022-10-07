@@ -9,12 +9,12 @@ let offset = {x:0, y:0}
 let ping
 let dark
 let gap = "\n         "
-let mousePos = {x:50, y:50}
 let prefix = "/"
 let online = 0
 let sound = localStorage.getItem("sound") || false
 let volume = localStorage.getItem("volume") || 0.15
 let lastMessage = ""
+let eyedropping = false
 
 let elements = {
     "root": document.querySelector(":root"),
@@ -36,6 +36,8 @@ let elements = {
         "input": document.querySelector("input#input"),
         "submit": document.querySelector("div.toolbar-button#submit"),
         "sound": document.querySelector("div.toolbar-button#audio"),
+        "save": document.querySelector("div.toolbar-button#save"),
+        "eyedropper": document.querySelector("div.toolbar-button#eyedropper")
     },
     "chat": document.querySelector("div.chat")
 }
@@ -53,11 +55,6 @@ setOffset(0,0)
 let setScale = (newScale) => {
     scale = newScale
     elements.canvas.style.transform = `scale(${newScale})`
-
-    // let mouseX = mousePos.x-elements.canvas.clientWidth/2
-    // let mouseY = mousePos.y-elements.canvas.clientHeight/2
-    //
-    // setOffset(-(mouseX*scale), -(mouseY*scale))
 }
 
 let setColour = (colour) => {
@@ -96,6 +93,8 @@ socket.on("request", (data) => {
     elements.connecting.classList.add("fadeout")
     setTimeout(() => {elements.connecting.style.display = "none"}, 400)
 
+    canvas.fillStyle = "#FFFFFF"
+    canvas.fillRect(0,0,data.width, data.height)
     canvas.fillStyle = "#000000"
 
     pixels = data.data
@@ -107,6 +106,7 @@ socket.on("request", (data) => {
         canvas.fillRect(pixel.x, pixel.y, 1, 1)
     })
     elements.canvas.addEventListener("click", (event) => {
+        if(eyedropping) return
         let bounds = elements.canvas.getBoundingClientRect()
         socket.emit("draw", {
             x: Math.floor((event.clientX - bounds.x) / scale),
@@ -164,6 +164,9 @@ document.addEventListener("keydown", (event) => {
         setOffset(offset.x, offset.y - scale - 10)
     } else if(event.code === "ArrowLeft" || event.code === "KeyA") {
         setOffset(offset.x + scale + 10, offset.y)
+    } else if(event.code === "Slash"){
+        if(elements.toolbar.input.value) return
+        elements.toolbar.input.focus()
     }
 
 })
@@ -242,11 +245,37 @@ elements.toolbar.sound.addEventListener("click", () => {
 })
 
 let systemMessage = (content, error) => {
-    elements.chat.innerHTML += `<div class="message"><div class="user ${error ? "error" : "system"}">System:</div><div class="content">${content}</div></div>`
+    elements.chat.innerHTML += `<div class="message"><div class="user ${error ? "error" : "system"}">System:</div><div class="content">${toHtmlEntities(content)}</div></div>`
+}
+let blankMessage = () => {
+    elements.chat.innerHTML += `<div class="message"><div class="user"></div><div class="content"><br></div></div>`
 }
 
 let sendHelp = () => {
-    systemMessage("Help menu")
+    systemMessage("----- Commands ----")
+    systemMessage("<> = Required | [] = Optional")
+    systemMessage("/help & /commands - Displays this menu")
+    systemMessage("/reload & /refresh - Reloads the canvas")
+    systemMessage("/name - Displays your name")
+    systemMessage("/setname <name> - Sets your name")
+    systemMessage("/darkmode [on,off,toggle] - Toggle darkmode")
+    systemMessage("/lightmode [on,off,toggle] - Toggle lightmode")
+    systemMessage("/lightmode [on,off,toggle] - Toggle lightmode")
+    systemMessage("/color & /colour - Displays your colour")
+    systemMessage("/setcolor & /setcolour <hexcolour> - Sets pixel colour")
+    systemMessage("/reset <zoom/scale/position> - Reset canvas scale or position")
+    systemMessage("/clear & /clearchat - Clears chat")
+    systemMessage("/ping & /latency - Displays ping")
+    systemMessage("/online & /players & /users - Displays online users")
+    systemMessage("/sound <on,off,toggle> - Toggle sound")
+    systemMessage("/save - Save canvas as image (png)")
+    systemMessage("/controls - Displays the controls menu")
+    systemMessage("/admin help - Display admin commands")
+    blankMessage()
+}
+
+let sendAdmin = () => {
+    systemMessage("Admin commands coming soon")
 }
 
 let sendControls = () => {
@@ -324,7 +353,7 @@ let submit = () => {
             setScale(defaultScale)
             systemMessage("Reset zoom")
         }else{
-            systemMessage("Valid arguments: position, zoom")
+            systemMessage("Valid arguments: position, zoom, scale")
         }
         return
     }else if(command === "clear" || command === "clearchat"){
@@ -358,25 +387,26 @@ let submit = () => {
     }else if(command === "controls"){
         sendControls()
         return
-    }
+    }else if(command === "save" || command === "download"){
+        downloadURI(imageToDataURI(elements.canvas, elements.canvas.clientWidth*10, elements.canvas.clientHeight*10), "canvas.png")
+        systemMessage("Downloading canvas.")
+        return
+    }else if(command === "admin") {
+        if(!args) return
 
+        if(args[0] === "help"){
+            sendAdmin()
+        }
+
+        return
+    }
 
     systemMessage("Type /help for a list of commands")
 }
 
-elements.canvas.addEventListener("mousemove", (event) => {
-    mousePos = {x: event.offsetX, y: event.offsetY}
-})
-
-String.prototype.toHtmlEntities = function() {
-    return this.replace(/./gm, function(string) {
-        return (string.match(/[a-z\d\s]+/i)) ? string : "&#" + string.charCodeAt(0) + ";";
-    })
-}
-
 socket.on("message", (message) => {
-    message.author = message.author.toHtmlEntities()
-    message.content = message.content.toHtmlEntities()
+    message.author = toHtmlEntities(message.author)
+    message.content = toHtmlEntities(message.content)
 
     elements.chat.innerHTML += `<div class="message"><div class="user">${message.author}:</div><div class="content">${message.content}</div></div>`
 })
@@ -392,4 +422,30 @@ elements.toolbar.commands.addEventListener("click", () => {
 
 elements.toolbar.controls.addEventListener("click", () => {
     sendControls()
+})
+
+elements.toolbar.save.addEventListener("click", () => {
+    downloadURI(imageToDataURI(elements.canvas, elements.canvas.clientWidth*10, elements.canvas.clientHeight*10), "canvas.png")
+})
+
+elements.toolbar.submit.addEventListener("click", () => {
+    submit()
+})
+
+socket.on("alert", (alert) => {
+    systemMessage(alert.message, alert.error)
+})
+
+elements.toolbar.eyedropper.addEventListener("click", () => {
+    eyedropping = true
+})
+
+elements.canvas.addEventListener("click", (event) => {
+    if(!eyedropping) return
+    let bounds = elements.canvas.getBoundingClientRect()
+    let data = canvas.getImageData(Math.floor((event.clientX - bounds.x) / scale),Math.floor((event.clientY - bounds.y) / scale),1,1).data
+    let hex = "#" + ("000000" + rgbToHex(data[0], data[1], data[2])).slice(-6)
+    setColour(hex)
+    systemMessage(`Set colour to: ${hex}`)
+    eyedropping = false
 })
