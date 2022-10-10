@@ -55,6 +55,9 @@ io.on('connection', (socket) => {
     })
 
     socket.on("token", (data) => {
+        if (!data) return
+        if (user) return
+
         let token = data.token && uuid.validate(data.token) && uuid.version(data.token) === 4 ? data.token : uuid.v4()
         socket.emit("token", {token: token})
 
